@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>كتب عنك اليوم</title>
+  <style>
+    body{font-family:Arial,sans-serif;background:#f8f9fa;margin:0;padding:40px;text-align:center;background:linear-gradient(135deg,#006233,#f8f9fa)}
+    h1{font-size:52px;color:white;margin:20px 0}
+    p{font-size:26px;color:#333}
+    input,button{padding:18px;font-size:22px;border-radius:12px;margin:15px;width:90%;max-width:550px}
+    input{border:3px solid #006233}
+    button{background:#006233;color:white;border:none;cursor:pointer}
+    button:hover{background:#004d1a}
+    .result{margin:20px;padding:20px;background:white;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.1);text-align:right}
+  </style>
+</head>
+<body>
+  <h1>كتب عنك اليوم</h1>
+  <p>اعرف ماذا كُتب عن شركتك أو اسمك اليوم في كل الأخبار الجزائرية</p>
+  
+  <input type="text" id="query" placeholder="اسم الشركة (سوناطراك، كوندور، سيفيتال، همود بو علم...)"/>
+  <button onclick="search()">ابحث الآن</button>
+
+  <div id="results"></div>
+
+  <script>
+    async function search() {
+      const query = document.getElementById('query').value.trim();
+      if (!query) return alert("اكتب اسم الشركة أولاً");
+      
+      document.getElementById('results').innerHTML = "<p>جاري البحث...</p>";
+      
+      try {
+        const res = await fetch(`https://ktb-3nk-lyoum.onrender.com/search/${query}`);
+        const data = await res.json();
+        
+        let html = `<h2 style="color:#006233">النتائج عن: ${data.query}</h2>`;
+        if (data.alerts.length === 0) {
+          html += "<p>لا توجد نتائج اليوم</p>";
+        } else {
+          data.alerts.forEach(a => {
+            const color = a.sentiment === "إيجابي" ? "green" : a.sentiment === "سلبي" ? "red" : "orange";
+            html += `
+              <div class="result">
+                <strong>${a.text}</strong><br>
+                <span style="color:${color}">المشاعر: ${a.sentiment}</span> • 
+                <small>المصدر: ${a.source}</small>
+              </div>`;
+          });
+        }
+        document.getElementById('results').innerHTML = html;
+      } catch (e) {
+        document.getElementById('results').innerHTML = "<p style='color:red'>خطأ في الاتصال، جرب مرة أخرى</p>";
+      }
+    }
+  </script>
+
+  <p style="margin-top:60px;color:white;font-size:18px">
+    النسخة التجريبية مجانية 100% لأول 1000 مستخدم جزائري<br>
+    صنع بفخر في الجزائر 🇩🇿
+  </p>
+</body>
+</html>
